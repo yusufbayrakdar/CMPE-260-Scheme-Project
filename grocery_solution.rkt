@@ -1,9 +1,32 @@
 #lang scheme
 ;2016400378
-(require "grocerydb.rkt")
+
+(define FARMS '( 
+(farmA 100 (apricot apple blueberry))
+(farmB 90 (broccoli carrot grape))
+(farmC 75 (corn grape lemon))
+(farmD 75 ()) ))
+
+(define CUSTOMERS '( 
+(john (farmA farmC) (apricot lemon))
+(james (farmB farmC) (grape corn))
+(arya (farmB farmD) (grape broccoli))
+(elenor () ())))
+
+(define CROPS '( 
+(apricot farmA 10)
+(apple farmA 12)
+(blueberry farmA 15)
+(broccoli farmB 8)
+(carrot farmB 5)
+(grape farmB 10)
+(corn farmC 9)
+(grape farmC 12)
+(lemon farmC 10)))
+
 
 ;Case 1
-(define (catchLine list entity) 
+(define (catchLine list entity) ;this function reads the given list of data line by line
   (if (null? list)
       null
       (if (eq? entity (caar list))
@@ -12,10 +35,10 @@
       )
   )
 )
-(define (sayNull table anything)
+(define (sayNull table anything);I used this function if nothing compares with our search keyword
       (or  (catchLine table anything) null)
 )
-(define (TRANSPORTATION-COST farmer)
+(define (TRANSPORTATION-COST farmer);It receives lines from catchline and find the wanted section
   (if (eq? null (sayNull FARMS farmer))
       0
       (list-ref (catchLine FARMS farmer) 1)
@@ -23,7 +46,7 @@
 )
 
 ;Case 2
-(define (AVAILABLE-CROPS farmer)
+(define (AVAILABLE-CROPS farmer);It receives lines from catchline and find the wanted section
   (if (eq? null (sayNull FARMS farmer))
       null
       (list-ref (catchLine FARMS farmer) 2)
@@ -31,21 +54,21 @@
 )
 
 ;Case 3
-(define (INTERESTED-CROPS farmer)
+(define (INTERESTED-CROPS farmer);It receives lines from catchline and find the wanted section
   (if (eq? null (sayNull CUSTOMERS farmer))
       null
       (list-ref (catchLine CUSTOMERS farmer) 2)
   )
 )
 ;Case 4
-(define (CONTRACT-FARMS farmer)
+(define (CONTRACT-FARMS farmer);It receives lines from catchline and find the wanted section
   (if (eq? null (sayNull CUSTOMERS farmer))
       null
       (list-ref (catchLine CUSTOMERS farmer) 1)
   )
 )
 ;Case5
-(define (SUB-LIST list city whichSection)
+(define (SUB-LIST list city whichSection);This function finds the wanted list in the line and controls is that line contains or not if it is then lists all matched results (farmers)
   (if (empty? list)
       null
       (if (memq city (list-ref(car list) whichSection))
@@ -55,16 +78,16 @@
 (define (CONTRACT-WITH-FARM farmer)
       (SUB-LIST CUSTOMERS farmer 1))
 ;Case6
-(define (INTERESTED-IN-CROP crop)
+(define (INTERESTED-IN-CROP crop);This function finds the wanted list in the line and controls is that line contains or not if it is then lists all matched results (farmers)
       (SUB-LIST CUSTOMERS crop 2))
 ;Case7
-(define (MAKE-LIST list city whichSection)
+(define (MAKE-LIST list city whichSection);This function lists all prices of a crop and return the master
   (if (empty? list)
       null
       (if (eq? city (caar list))
           (cons (caddr(car list)) (MAKE-LIST (cdr list) city whichSection))
           (MAKE-LIST (cdr list) city whichSection))))
-(define (MIN-SALE-PRICE crop)
+(define (MIN-SALE-PRICE crop);This function finds the min of the returned list
   (list-min (MAKE-LIST CROPS crop 2))
 )
 
@@ -77,7 +100,7 @@
     )
 )
 ;Case8
-(define (SCOPE list min max)
+(define (SCOPE list min max);This function lists all crops whose price is between min and max price
   (if (empty? list)
       null
       (if (<= min (caddr(car list)))
@@ -111,7 +134,7 @@
       +inf.0
   )
 )
-(define (PRICE-RECURSIVE list crop)
+(define (PRICE-RECURSIVE list crop);This function calculate min sum of Transportation and Label price for given crop
   (if (null? list)
       +inf.0
   (if (memq crop (AVAILABLE-CROPS (car list)))
@@ -121,7 +144,7 @@
   )
 )
 ;Case10
-(define (TOTAL-PRICE person)
+(define (TOTAL-PRICE person);This function uses BUY-PRICE function and finds the minimum price that given person can buy all crops that the person can buy.
   (TOTAL-PRICE-RECURSIVE (INTERESTED-CROPS person) person)
 )
 (define (TOTAL-PRICE-RECURSIVE list person)
